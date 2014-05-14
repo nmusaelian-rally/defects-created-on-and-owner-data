@@ -5,15 +5,22 @@ Ext.define('CustomApp', {
 launch: function() {
         var that = this;
    	that._datePick = Ext.create('Ext.panel.Panel',{
-	    title: 'Choose a date:',
+	    //title: 'Choose a date:',
 	    width: 200,
 	    bodyPadding: 10,
-   	    items: [{
-		xtype: 'datepicker',
-		handler: function(picker, date) {
-		    that._onDateSelected(date);
-		}
-	    }]
+   	    items: [
+                {
+                    xtype: 'datepicker',
+                    handler: function(picker, date) {
+                        that._onDateSelected(date);
+                    }
+                },
+                {
+                    xtype:'container',
+                    id: 'notify',
+                    html: 'click on a date to select'
+                }
+            ]
    	});
    	this.add(that._datePick);
    },
@@ -58,7 +65,12 @@ launch: function() {
    },
    
    _onDataLoaded: function(store, records){
+        if ((records.length === 0) && (this._grid)) {
+            this._grid.destroy();
+        }
+        
         var that = this;
+        Ext.getCmp('notify').update(records.length + ' defect(s) created on this day');
         var promises = [];
          _.each(records, function(defect) {
             promises.push(that._getOwner(defect, that));
@@ -106,10 +118,10 @@ launch: function() {
                                 "ObjectID"      : defectOid,
                                 "FormattedID"   : defectFid,
                                 "Name"          : defectName,
-                                "State" : defectState,
+                                "State"         : defectState,
                                 "Owner"         : username,
-                                "OwnerName"    : displayname,
-                                "OwnerEmail"   : email   
+                                "OwnerName"     : displayname,
+                                "OwnerEmail"    : email   
                             };
                     deferred.resolve(result);    
                 }
